@@ -36,21 +36,42 @@ app.get('/reset-password', (req, res) => {
     res.sendFile(__dirname + '/reset-password.html');
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/tasks', (req, res) => {
     // Render the dashboard page or serve the dashboard HTML here
-    res.sendFile(__dirname + '/dashboard.html');
+    res.sendFile(__dirname + '/tasks.html');
 });
 
 app.get('/reset-success', (req, res) => {
     res.sendFile(__dirname + '/reset-success.html');
 });
 
-
-
 // Define a route to render the logout success page
 app.get('/logout', (req, res) => {
     res.sendFile(__dirname + '/logout.html');
 });
+
+app.get('/tasks', (req, res) => {
+    // Assuming you have user authentication and can access the user's ID
+    const userId = req.user.id;
+
+    // Query tasks for the current user (you need to adapt this to your database)
+    const query = 'SELECT * FROM tasks WHERE member_id = $1';
+    const values = [userId];
+
+    pool.query(query, values, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error fetching tasks.');
+        }
+
+        const currentUserTasks = result.rows;
+
+        // Assuming tasks.html is in the same directory as your server file
+        res.sendFile(__dirname + '/tasks.html');
+    });
+});
+
+
 
 
 // Define a route to handle registration form submissions
@@ -100,20 +121,21 @@ app.post('/login', async (req, res) => {
                 // Passwords match, user is authenticated
 
                 // Redirect to the dashboard or another page
-                res.redirect('/dashboard');
+                res.redirect('/tasks');
             } else {
                 // Passwords do not match, show an error message
-                res.status(401).send('Incorrect username or password');
+                res.redirect('/login?error=true');
             }
         } else {
             // No user found with the provided username, show an error message
-            res.status(401).send('Incorrect username or password');
+            res.redirect('/login?error=true');
         }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Error during login.');
     }
 });
+
 
 app.post('/reset-password', async (req, res) => {
     const { username, newPassword } = req.body;
@@ -152,6 +174,28 @@ app.post('/logout', (req, res) => {
 
     // Redirect to the logout success page
     res.redirect('/logout');
+});
+
+app.post('/tasks', (req, res) => {
+    const { name, description, status, member_id, created_date, updated_date, expense, priority, deadline_date, time_left } = req.body;
+    
+    // Validate the status field
+    const allowedStatusValues = ['todo', 'in-progress', 'completed'];
+    if (!allowedStatusValues.includes(status)) {
+        return res.status(400).send('Invalid status value. Status must be one of: todo, in-progress, completed.');
+    }
+
+    const query = 'INSERT INTO tasks (name, description, status, member_id, created_date, updated_date, expense, priority, deadline_date, time_left) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)';
+    const values = [name, description, status, member_id, created_date, updated_date, expense, priority, deadline_date, time_left];
+
+    pool.query(query, values, (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error adding task to the database.');
+        } else {
+            res.redirect('/tasks');
+        }
+    });
 });
 
 app.listen(port, () => {

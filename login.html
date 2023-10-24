@@ -1,3 +1,4 @@
+<!-- login.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for error message */
+        .error-message {
+            display: none;
+            color: red;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body class="bg-yellow-200">
     <div class="flex justify-center items-center h-screen">
@@ -22,7 +32,21 @@
                 <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-lg focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">Login</button>
             </form>
             <a href="/reset-password" class="mt-4 text-sm text-black-500 hover:underline">Reset Password</a>
+            <!-- Error message section -->
+            <div class="error-message" id="error-message">
+                Incorrect username or password. Please try again.
+            </div>
         </div>
     </div>
+
+    <script>
+        // JavaScript to show error message if redirected with an error parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error === 'true') {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
