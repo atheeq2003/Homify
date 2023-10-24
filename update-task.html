@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8">
+        <!-- Add New Task Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Update Task</h2>
+            <form id="update-task-form" action="/update-task" method="post">
+                <input type="hidden" name="id" value="<%= task.id %>">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-600">Task Name</label>
+                    <input type="text" name="name" id="name" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" value="<%= task.name %>" required>
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-600">Description</label>
+                    <textarea name="description" id="description" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required><%= task.description %></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="status" class="block text-sm font-medium text-gray-600">Status</label>
+                    <select name="status" id="status" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
+                        <option value="todo" <%= task.status === 'todo' ? 'selected' : '' %>>To Do</option>
+                        <option value="in-progress" <%= task.status === 'in-progress' ? 'selected' : '' %>>In Progress</option>
+                        <option value="completed" <%= task.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="expense" class="block text-sm font-medium text-gray-600">Expense</label>
+                    <input type="text" name="expense" id="expense" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" value="<%= task.expense %>" required>
+                </div>
+                <div class="mb-4">
+                    <label for="priority" class="block text-sm font-medium text-gray-600">Priority</label>
+                    <select name="priority" id="priority" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
+                        <option value="high" <%= task.priority === 'high' ? 'selected' : '' %>>High</option>
+                        <option value="mid" <%= task.priority === 'mid' ? 'selected' : '' %>>Mid</option>
+                        <option value="low" <%= task.priority === 'low' ? 'selected' : '' %>>Low</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="deadline_date" class="block text-sm font-medium text-gray-600">Deadline Date</label>
+                    <input type="date" name="deadline_date" id="deadline_date" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" value="<%= task.deadline_date %>" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">Update Task</button>
+            </form>
+            <!-- Success Prompt (Hidden by default) -->
+            <div id="success-prompt" class="hidden mt-4 text-green-500">Task updated successfully!</div>
+        </div>
+        
+    </div>
+    <script>
+        const updateTaskForm = document.getElementById('update-task-form');
+        const successPrompt = document.getElementById('success-prompt');
+    
+        updateTaskForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(updateTaskForm);
+    
+            try {
+                const response = await fetch('/update-task', {
+                    method: 'POST',
+                    body: formData,
+                });
+    
+                if (response.ok) {
+                    // Show the success prompt
+                    successPrompt.style.display = 'block';
+    
+                    // Redirect after a brief delay (e.g., 2 seconds)
+                    setTimeout(() => {
+                        window.location.href = '/tasks';
+                    }, 2000);
+                } else {
+                    // Handle errors if needed
+                    console.error('Error:', response);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+    
+</body>
+</html>

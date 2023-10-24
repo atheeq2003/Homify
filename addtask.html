@@ -8,13 +8,10 @@
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto py-8">
-        <h1 class="text-2xl font-semibold mb-4">Task List</h1>
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" id="tasks-container">
-            <!-- Tasks will be dynamically loaded here -->
-        </div>
+        <!-- Add New Task Section -->
         <div class="mt-8">
             <h2 class="text-2xl font-semibold mb-4">Add New Task</h2>
-            <form action="/tasks" method="post">
+            <form id="add-task-form" action="/tasks" method="post">
                 <div class="mb-4">
                     <label for="name" class="block text-sm font-medium text-gray-600">Task Name</label>
                     <input type="text" name="name" id="name" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
@@ -32,44 +29,61 @@
                     </select>
                 </div>
                 <div class="mb-4">
+                    <label for="expense" class="block text-sm font-medium text-gray-600">Expense</label>
+                    <input type="text" name="expense" id="expense" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
+                </div>
+                <div class="mb-4">
+                    <label for="priority" class="block text-sm font-medium text-gray-600">Priority</label>
+                    <select name="priority" id="priority" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
+                        <option value="high">High</option>
+                        <option value="mid">Mid</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="mb-4">
                     <label for="deadline_date" class="block text-sm font-medium text-gray-600">Deadline Date</label>
                     <input type="date" name="deadline_date" id="deadline_date" class="mt-1 p-2 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring focus:border-blue-300" required>
                 </div>
                 <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-lg focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">Add Task</button>
             </form>
+            <!-- Success Prompt (Hidden by default) -->
+            <div id="success-prompt" class="hidden mt-4 text-green-500">Task added successfully!</div>
         </div>
     </div>
-
     <script>
-        // JavaScript to fetch tasks from your Node.js application
-        fetch('/tasks')
-            .then(response => response.json())
-            .then(tasks => {
-                const tasksContainer = document.getElementById('tasks-container');
+        // JavaScript to show success prompt and redirect after task submission
+        const addTaskForm = document.getElementById('add-task-form');
+        const successPrompt = document.getElementById('success-prompt');
 
-                tasks.forEach(task => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.className = 'bg-white rounded-lg shadow p-4';
+        addTaskForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(addTaskForm);
 
-                    const nameHeading = document.createElement('h2');
-                    nameHeading.className = 'text-lg font-semibold mb-2';
-                    nameHeading.textContent = task.name;
-
-                    const descriptionPara = document.createElement('p');
-                    descriptionPara.className = 'text-gray-600 mb-4';
-                    descriptionPara.textContent = task.description;
-
-                    // Create additional elements for other task details (status, created_date, etc.)
-
-                    taskDiv.appendChild(nameHeading);
-                    taskDiv.appendChild(descriptionPara);
-
-                    tasksContainer.appendChild(taskDiv);
+            try {
+                const response = await fetch('/tasks', {
+                    method: 'POST',
+                    body: formData,
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching tasks:', error);
-            });
+
+                if (response.ok) {
+                    // Show the success prompt
+                    successPrompt.style.display = 'block';
+
+                    // Clear the form
+                    addTaskForm.reset();
+
+                    // Redirect after a brief delay (e.g., 2 seconds)
+                    setTimeout(() => {
+                        window.location.href = '/tasks';
+                    }, 2000);
+                } else {
+                    // Handle errors if needed
+                    console.error('Error:', response);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
     </script>
 </body>
 </html>
